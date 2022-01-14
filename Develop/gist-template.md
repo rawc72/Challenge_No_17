@@ -310,8 +310,98 @@ Output
 ```
 
 ### Flags
+| Flag | Name          | Modification                                                                                                                                       |
+| ---- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| i    | Ignore Casing | Makes the expression search case-insensitively.                                                                                                    |
+| g    | Global        | Makes the expression search for all occurences.                                                                                                    |
+| s    | Dot All       | Makes the wild character . match newlines as well.                                                                                                 |
+| m    | Multiline     | Makes the boundary characters ^ and $ match the beginning and ending of every single line instead of the beginning and ending of the whole string. |
+| y    | Sticky        | Makes the expression start its searching from the index indicated in its lastIndex property.                                                       |
+| u    | Unicode       | Makes the expression assume individual characters as code points, not code units, and thus match 32-bit characters as well.                        |
+
+#### Ignore casing
+
+The first and foremost flag we shall explore in this section is the i flag, where the 'i' stands for ignore casing.
+
+As the name suggests, the i flag serves to make an expression look for its matches while ignoring character casing. That is, a lowercase character in the expression matches both lowercase as well as uppercase characters in the string.
+
+By default, a regular expression searches for its first match case-sensitively. However, using the i flag, we can modify this default behaviour, and usually we do need to.
+
+#### Global search
+
+The second most important flag in the world of regular expression is g.
+
+The flag g stands for global, more specifically, global searching. It serves to make an expression look for all its matches, rather than stopping at the first one.
+
+By default, when a regex engine finds the first match for a given pattern in a given test string, it terminates and prevents any further searching. To modify this behaviour, we have at our dispense the g flag.
+
+For example, let's say we have two expressions /cats/ and /cats/g and our string is "cats love cats".
+
+The first expression (without the g flag) would match only the first word 'cats' ("cats love cats"). In contrast, the second expression (with the g flag) would match both the words 'cats' ("cats love cats").
+
+#### Dot all
+
+A fairly recent introduction to the list of flags in JavaScript's regular expressions is that of s.
+
+The flag s means dot all. That is, it makes the . dot character (technically refered to as the wildcard character) match everything, even newlines. In other words, with the s flag, the dot matches all possible characters.
+
+By default, the dot character in a regular expression matches everything, but newline characters. To get it to match newline characters as well, we are given the s flag.
+
+#### Multiline mode
+
+The flag m stands for multiline mode and serves to make the boundary tokens ^ and $ match the beginning and end of each line.
+
+By default, the ^ and $ characters in an expression match the beginning and ending boundaries of a given test string. But with the m flag in place, they instead do this for every line in the string.
+
+#### Sticky searching
+
+Often times, we might want an expression to start its searching routine, within a given test string, from an index other than 0. In other words, we might want to search for matches in the string from a custom position, like 2, 3, 4 and so on.
+
+This can be accomplished using the y flag.
+
+The y flag stands for sticky searching. It makes an expression search from the position specified in its lastIndex property.
+
+Without changing the lastIndex property on an expression that has the y flag set, makes the flag useless - searching would begin at the default index 0.
+
+#### Unicode search
+
+The u flag, which stands for unicode, makes an expression treat characters in a given test string as code points, rather than code units.
+
+This means that with the u flag set, we can get our expressions to behave normally on characters that are outside the BMP range of the UTF-16 encoding.
+
+The u flag is only required in special cases, where test strings contain characters outside the normal range of the UTF-16 character set. It's not a flag you'll be using very often.
 
 ### Grouping and Capturing
+Groups use the ( ) symbols (like alternations, but the | symbol is not needed). They are useful for creating blocks of patterns, so you can apply repetitions or other modifiers to them as a whole. In the pattern ([a-x]{3}[0-9])+, the + metacharacter is applied to the whole group.
+
+Also, another main use of groups is for processing parts of a match like extracting data or replacing it.
+
+( ) Unnamed Groups
+With pattern1(pattern2)pattern3, you'll capture the results of pattern2 for later use but not the parts matched by pattern1 or pattern3. This is useful when you want to extract only a portion of the search. Imagine that you are reading some text files that are formatted as forms. They could have data like this:
+
+```
+Name:"John" Surname:"Doe" Email:"john@example.com"
+```
+
+If you need to extract the value of the Name part (John in the example), you can use a pattern like Name:"([\w]+?)" to capture just the useful data, using the Name:" as a reference for locating the data within the text.
+
+(?: ) Non capturing Groups
+Use (?: ) for non capturing groups. If you need to use a group as a block but you won't process the results later, then make it non-capturing.
+
+Named Groups
+Use (?<groupname> ) to capture a group with name groupname. This is useful for later processing when input data may be presented in a different order than desired.
+
+```
+Name:"John" Surname:"Doe" Email:"john@example.com"
+```
+
+Consider the following regex pattern:
+
+```
+Name:"(?<Name>[\w]+?)".*?Surname:"(?<Surname>[\w]+?)".*?Email:"(?<Email>\b[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b)"
+```
+
+This pattern will match each piece of data and will create three Name Groups: Group 'Name' with data John, Group 'Surname' with data Doe and Group 'Email' with data john@example.com. Each language and regex engine define how to access matched groups. Check your language documentation to learn how to iterate and process matched groups.
 
 ### Bracket Expressions
 
