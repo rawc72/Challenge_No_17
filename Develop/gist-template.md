@@ -1,13 +1,9 @@
-# Title (replace with your title)
-
-Introductory paragraph (replace this with your text)
+# Hyper Regex
 
 ## Summary
-
-Briefly summarize the regex you will be describing and what you will explain. Include a code snippet of the regex. Replace this text with your summary.
+This regex seeks to provide multiple examples of the different regular expresion terms. It provides snipbits of code that outline the terms in a way that is simply to understand and apply. 
 
 ## Table of Contents
-
 - [Anchors](#anchors)
 - [Quantifiers](#quantifiers)
 - [OR Operator](#or-operator)
@@ -405,13 +401,108 @@ This pattern will match each piece of data and will create three Name Groups: Gr
 
 ### Bracket Expressions
 
+A bracket expression represents a character set via a list of characters enclosed by the square brackets: '[' and ']'. It normally matches the target string with any single character from the list.
+
+If the character list begins with '^', it matches any single character not from the rest of the list.
+
+If two characters in the list are separated by '–', this is shorthand for the (inclusive) range of characters between those two. It is illegal for two ranges to share an endpoint, e.g. a-c-e. Ranges are collating-sequence dependent and should be avoided for portability.
+Most special characters lose their special status and become literals within brackets. Additionally,
+– is literal at the end or beginning of a bracket expression
+^ is literal if not at the beginning of a bracket expression
+The backslash character, \, retains its meaning in bracket expressions, permitting the usage of the special escape sequences: such as \n, \t, \w, \d, etc.
+
 ### Greedy and Lazy Match
+
+#### Greedy: As Many As Possible (longest match)
+
+By default, a quantifier tells the engine to match as many instances of its quantified token or subpattern as possible. This behavior is called greedy.
+
+For instance, take the + quantifier. It allows the engine to match one or more of the token it quantifies: \d+ can therefore match one or more digits. But "one or more" is rather vague: in the string 123, "one or more digits" (starting from the left) could be 1, 12 or 123. Which of these does \d+ match?
+
+Because by default quantifiers are greedy, \d+ matches as many digits as possible, i.e. 123. For the match attempt that starts at a given position, a greedy quantifier gives you the longest match.
+
+#### Lazy: As Few As Possible (shortest match)
+
+In contrast to the standard greedy quantifier, which eats up as many instances of the quantified token as possible, a lazy (sometimes called reluctant) quantifier tells the engine to match as few of the quantified tokens as needed. As you'll see in the table below, a regular quantifier is made lazy by appending a ? question mark to it.
+
+Since the _ quantifier allows the engine to match zero or more characters, \w_?E tells the engine to match zero or more word characters, but as few as needed—which might be none at all—then to match an E. In the string 123EEE, starting from the very left, "zero or more word characters then an E" could be 123E, 123EE or 123EEE. Which of these does \w\*?E match?
+
+Because the _? quantifier is lazy, \w_? matches as few characters as possible to allow the overall match attempt to succeed, i.e. 123—and the overall match is 123E. For the match attempt that starts at a given position, a lazy quantifier gives you the shortest match.
 
 ### Boundaries
 
+#### Word Boundary: \b
+
+The word boundary \b matches positions where one side is a word character (usually a letter, digit or underscore—but see below for variations across engines) and the other side is not a word character (for instance, it may be the beginning of the string or a space character).
+
+The regex \bcat\b would therefore match cat in a black cat, but it wouldn't match it in catatonic, tomcat or certificate. Removing one of the boundaries, \bcat would match cat in catfish, and cat\b would match cat in tomcat, but not vice-versa. Both, of course, would match cat on its own.
+
+Word boundaries are useful when you want to match a sequence of letters (or digits) on their own, or to ensure that they occur at the beginning or the end of a sequence of characters.
+
+#### Not-a-word-boundary: \B
+
+\B matches all positions where \b doesn't match. Therefore, it matches:
+
+✽ When neither side is a word character, for instance at any position in the string $=(@-%++) (including the beginning and end of the string)
+✽ When both sides are a word character, for instance between the H and the i in Hi!
+
 ### Back-references
 
+When matching string patterns using regular expressions, you might wish to match the same piece of text more than once. When the pattern used to perform the first match includes non-literal elements, you can look for the repeated text using a backreference. A backreference in a regular expression identifies a previously matched group and looks for exactly the same text again.
+
+#### Numbered Backreferences
+
+A numbered backreference matches text already found in a group. You simply add a backslash character and the number of the group to match again. For example, to find the text matched by the first group in a regular expression, you would include, "\1" in your regular expression pattern. The text extracted into the captured group is then searched for in the input string at the position of the backreference.
+
+#### Named Backreferences
+
+One way to avoid the ambiguity of numbered backreferences is to use named backreferences. These allow you to match the text that has been captured by a named group. If the same name has been used twice or more, the backreference will match the text from the most recent match. To define a named backreference, use "\k", followed by the name of the group.
+
 ### Look-ahead and Look-behind
+
+#### Lookahead
+
+The syntax is: X(?=Y), it means "look for X, but match only if followed by Y". There may be any pattern instead of X and Y.
+
+For an integer number followed by €, the regexp will be \d+(?=€):
+
+```
+let str = "1 lesson costs 15€";
+console.log(str.match(/\d+(?=€)/)); // 15, the number 1 is ignored, as it is not followed by the sign €
+```
+
+The lookahead is just a test, hence the parentheses contests (?=...) are not included in the result 10.
+
+While looking for X(?=Y), the engine of the regular expression detects X and then checks whether there is Y right after it. In case there is no Y, then the match is skipped, and the search goes on.
+
+A pattern like X(?=Y)(?=Z) considers searching for X followed by and then Z simultaneously. It can be possible only when Y and Z are mutually exclusive.
+
+#### Negative Lookahead¶
+
+Now, imagine you need to get the quantity instead of the price from the same string. In our case, it’s a number \d+, not followed by €.
+
+You can use the negative lookahead for that purpose.
+
+The syntax of the negative lookahead is X(?!Y), considering the search for X, only if it is not followed by Y, like here:
+
+```
+let str = "2 lessons cost 30€";
+console.log(str.match(/\d+(?!€)/)); // 2 (skipping the price)
+```
+
+#### Lookbehind
+
+As it was noted above, lookahead allows adding a condition for what is ahead. Now, let’s discover loohbehind. The same logic works here. Lookbehind allows adding a condition for what is behind. In other words, it allows matching a pattern only if there is something before it.
+
+Lookbehind can also be positive and negative. The positive lookbehind syntax is (?<=y)x< kbd>, considering that X will be matched only if there is Y before it. the syntax of the negative lookbehind is (?, considering that X will be matched, only if there is no Y before it.
+
+Let’s check out an example:
+
+```
+let str = "1 lesson costs $15";
+// the dollar sign is escaped \$
+alert(str.match(/(?<=\$)\d+/)); // 15,the sole number is skipped
+```
 
 ## Author
 Robert Williams is an international banking executive with over 20-yr's experience in leadership, corporate finance, wealth management, retail banking and enterprise risk management. Robert is also an experienced board member with a strong corporate governance background.
